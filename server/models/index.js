@@ -1,54 +1,75 @@
-// server/models/index.js defines the messages and users models that your application will use. Skeletons of the models have already been created but you'll have to write out the details for their methods
-
 var db = require('../db');
 var express = require('express');
 
 module.exports = {
   messages: {
-    get: function () {}, // a function which produces all the messages
-    post: function (obj, res) {
-      console.log('here is our obj ', obj);
+    get: function (callback) {
+      db.connection.query('select * from messages', function (err, rows, fields) {
+        if (err) {
+          callback(err, null);
+        } else {
+          callback(null, rows.map(function getUser(obj) {
+            db.connection.query('select name from users where id ="' + obj.userID + '"', function(err, rows, fields) {
+              obj.username = rows.name;
+            });
+            return obj;
+          }));
+        }
+      });
+    }, // a function which produces all the messages
+    post: function (obj, callback) {
       var entry = {
         message: obj.text,
-        roomname: obj.roomname,
-        userID: 1
+        roomname: obj.roomname
       };
-      db.connection.query('insert into messages set ?', entry, function (err) {
+      db.connection.query('select id from users where name="' + obj.username + '"', function (err, rows, fields) {
+        console.log('this is our rows: ', rows);
         if (err) {
-          console.log(err);
-          res.end();
+          return;
         } else {
-          res.end();
+
+          entry['userID'] = rows[0].id;
+          console.log('HEEEEEEY LOOOOOOK LIIIIIIISTEN', entry['userID']);
+          db.connection.query('insert into messages set ?', entry, function (err) {
+            if (err) {
+              console.log(err);
+              callback(err, null);
+            } else {
+              callback(null, entry);
+            }
+          });
         }
       });
 
-    } // a function which can be used to insert a message into the database
+    }
   },
 
   users: {
-    // Ditto as above.
-    get: function () {},
-    post: function (obj, res) {
-      var entry = {name: obj.username};
-      console.log(entry);
-      db.connection.query('insert into users set ?', entry, function(err) {
+    get: function (callback) {
+      db.connection.query('select * from messages', function (err, rows, fields) {
         if (err) {
-          console.log('shit happens');
-          // res.json('shit happens');
-          console.log(err);
-          res.end();
+          callback(err, null);
         } else {
-          res.json(entry);
-          res.end();
+          callback(null, rows);
         }
       });
-      //db.connection.end();
+    },
+    post: function (string, callback) {
+      var entry = {name: string};
+      db.connection.query('select name from users', function (err, rows, fields) {
+        for (var x = 0; x < rows.length; x++) {
+          if (rows[x].name === string) {
+            return;
+          }
+        }
+        db.connection.query('insert into users set ?', entry, function(err) {
+          if (err) {
+            callback(err, null);
+          } else {
+            callback(null, entry);
+          }
+        });
+      });
     }
   }
 };
-
-// con.query('INSERT INTO employees SET ?', employee, function(err,res){
-//   if(err) throw err;
-
-//   console.log('Last insert ID:', res.insertId);
-// });

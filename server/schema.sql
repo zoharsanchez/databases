@@ -11,8 +11,8 @@ CREATE TABLE messages (
   id int not null auto_increment primary key,
   message char(100),
   roomname char(25),
-  userID int
-  -- foreign key (userId) references users(id) on delete cascade
+  userID int,
+  foreign key (userId) references users(id) on delete cascade
 );
 
 -- CREATE TABLE rooms (
