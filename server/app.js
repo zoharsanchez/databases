@@ -14,6 +14,14 @@ module.exports.app = app;
 // Set what we are listening on.
 app.set('port', 3000);
 
+db.connection.connect(function(err) {
+  if (err) {
+    console.error('error connecting: ' + err.stack);
+    return;
+  }
+  console.log('connected as id ' + db.connection.threadId);
+});
+
 // Logging and parsing
 app.use(morgan('dev'));
 app.use(parser.json());
