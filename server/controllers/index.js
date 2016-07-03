@@ -11,6 +11,7 @@ module.exports = {
           res.end();
           return;
         }
+        // console.log('console logging our body', body);
         res.json(body);
         res.end();
       });
@@ -57,6 +58,7 @@ module.exports = {
   },
 
   options: function (req, res) {
+    console.log('options called');
     res.status(200);
     res.json({message: 'You are okay'});
     res.end();

@@ -58,11 +58,12 @@ var app = {
       url: app.server,
       type: 'GET',
       contentType: 'application/json',
-      data: { order: '-createdAt'},
+      // data: { order: '-createdAt'},
       success: function(data) {
         // Don't bother if we have nothing to work with
-        console.log('fetch worked');
         if (!data || !data.length) { return; }
+
+        console.log(data);
 
         // Get the last message
         var mostRecentMessage = data[data.length - 1];
@@ -141,7 +142,6 @@ var app = {
   },
 
   addMessage: function(data) {
-    console.log(data);
     if (!data.roomname) {
       data.roomname = 'lobby';
     }
@@ -162,7 +162,7 @@ var app = {
       }
 
       var $message = $('<br><span/>');
-      $message.text(data.text).appendTo($chat);
+      $message.text(data.message).appendTo($chat);
 
       // Add the message to the UI
       app.$chats.append($chat);
